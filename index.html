@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Private Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 400px;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #4a90e2;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #357ab8;
+    }
+    #chat {
+      margin-top: 15px;
+      height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 5px;
+      background: #fafafa;
+    }
+    .message {
+      margin: 5px 0;
+      padding: 8px;
+      background: #e6f0ff;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Private Chat</h2>
+    <input id="roomCode" placeholder="Enter or generate room code">
+    <button onclick="generateCode()">Generate Code</button>
+    <button onclick="joinRoom()">Join Room</button>
+    
+    <div id="chat"></div>
+    <input id="msg" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    let room = "";
+    let chatBox = document.getElementById("chat");
+    let msgInput = document.getElementById("msg");
+    let roomInput = document.getElementById("roomCode");
+
+    function generateCode() {
+      room = Math.random().toString(36).substring(2,8).toUpperCase();
+      roomInput.value = room;
+      alert("Your room code: " + room);
+    }
+
+    function joinRoom() {
+      room = roomInput.value.trim();
+      if(room) {
+        chatBox.innerHTML += `<div class="message">Joined room: ${room}</div>`;
+      }
+    }
+
+    function sendMessage() {
+      let msg = msgInput.value.trim();
+      if(msg) {
+        chatBox.innerHTML += `<div class="message">${msg}</div>`;
+        msgInput.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight; // auto-scroll
+      }
+    }
+
+    // 🔹 Press Enter in message box → send
+    msgInput.addEventListener("keypress", function(event) {
+      if(event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // 🔹 Press Enter in room code box → join
+    roomInput.addEventListener("keypress", function(event) {
+      if(event.key === "Enter") {
+        event.preventDefault();
+        joinRoom();
+      }
+    });
+  </script>
+</body>
+</html>
