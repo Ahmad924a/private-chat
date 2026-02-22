@@ -69,7 +69,26 @@
     <button onclick="sendMessage()">Send</button>
   </div>
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
+
   <script>
+    // 🔹 Replace with your Firebase config from Firebase Console
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     let room = "";
     let chatBox = document.getElementById("chat");
     let msgInput = document.getElementById("msg");
@@ -85,30 +104,41 @@
       room = roomInput.value.trim();
       if(room) {
         chatBox.innerHTML += `<div class="message">Joined room: ${room}</div>`;
+        listenForMessages();
       }
     }
 
     function sendMessage() {
       let msg = msgInput.value.trim();
-      if(msg) {
-        chatBox.innerHTML += `<div class="message">${msg}</div>`;
+      if(msg && room) {
+        db.ref("rooms/" + room).push({
+          text: msg,
+          timestamp: Date.now()
+        });
         msgInput.value = "";
-        chatBox.scrollTop = chatBox.scrollHeight; // auto-scroll
       }
     }
 
+    function listenForMessages() {
+      db.ref("rooms/" + room).on("child_added", snapshot => {
+        let data = snapshot.val();
+        chatBox.innerHTML += `<div class="message">${data.text}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      });
+    }
+
     // 🔹 Press Enter in message box → send
-    msgInput.addEventListener("keypress", function(event) {
-      if(event.key === "Enter") {
-        event.preventDefault();
+    msgInput.addEventListener("keypress", e => {
+      if(e.key === "Enter") {
+        e.preventDefault();
         sendMessage();
       }
     });
 
     // 🔹 Press Enter in room code box → join
-    roomInput.addEventListener("keypress", function(event) {
-      if(event.key === "Enter") {
-        event.preventDefault();
+    roomInput.addEventListener("keypress", e => {
+      if(e.key === "Enter") {
+        e.preventDefault();
         joinRoom();
       }
     });
